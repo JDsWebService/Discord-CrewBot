@@ -4,6 +4,8 @@
 
 `setup` - Set's up the discord server for use of the CrewBot. Only run this command once.
 
+`reinstall` - Resets the entire discord and erases all crews.
+
 ## User Front Facing
 
 `crew create <crewName>` - creates a new Crew as specified by the user

@@ -1,7 +1,9 @@
 const Discord = require("discord.js");
 const logModule = require("../log.js");
+const sqliteModule = require("../sqlite.js");
 const log = logModule.log;
 const chalk = logModule.chalk;
+const sql = sqliteModule.sql;
 
 module.exports.run = async (bot, message, args, guild) => {
 	// Check if the member has the Administrator Permission
@@ -92,6 +94,27 @@ module.exports.run = async (bot, message, args, guild) => {
 		} else if(crewsCategory.type === 'category') {
 			log(chalk.red("Crews Category Already Exists!"));
 		}
+
+		// --------------------
+		// Setup SQLite Table
+		// --------------------
+		const table = sql.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'crews';").get();
+		if (!table['count(*)']) {
+			// If the table isn't there, create it and setup the database correctly.
+			sql.prepare("CREATE TABLE crews (id TEXT PRIMARY KEY, user TEXT, guild TEXT, crewName TEXT);").run();
+			// Ensure that the "id" row is always unique and indexed.
+			sql.prepare("CREATE UNIQUE INDEX idx_crews_id ON crews (id);").run();
+			sql.pragma("synchronous = 1");
+			sql.pragma("journal_mode = wal");
+			// Echo Logs
+			log(chalk.green("SQLite Setup!"));
+			message.channel.send("SQLite has been setup!");
+		} else {
+			log(chalk.red("SQLite has already been setup!"));
+			message.channel.send("SQLite has already been setup!");
+		}
+
+		
 
 
 		// --------------------

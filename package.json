@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "CrewBot",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/JDsWebService/Discord-CrewBot.git"
+    "type": "git",
+    "url": "https://github.com/JDsWebService/Discord-CrewBot.git"
   },
   "main": "index.js",
   "scripts": {
@@ -14,11 +14,13 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/uws": "^10.149.0",
+    "better-sqlite3": "^5.4.0",
     "bufferutil": "^4.0.1",
     "chalk": "^2.4.2",
     "discord.js": "^11.5.1",
     "erlpack": "github:discordapp/erlpack",
     "libsodium-wrappers": "^0.7.4",
+    "node-gyp": "^4.0.0",
     "node-opus": "^0.2.9",
     "opusscript": "0.0.6",
     "sodium": "^2.0.3"

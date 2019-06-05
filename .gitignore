@@ -2,6 +2,11 @@
 # Created by https://www.gitignore.io/api/node
 # Edit at https://www.gitignore.io/?templates=node
 
+### SQLite Database ###
+crews.sqlite
+crews.sqlite-shm
+crews.sqlite-wal
+
 ### Discord.js ###
 token-config.json
 
