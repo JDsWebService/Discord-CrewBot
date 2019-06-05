@@ -41,6 +41,12 @@ module.exports.run = async (bot, message, args, guild) => {
 		log(chalk.green("Crew Creation"))
 		log(chalk.green("*******************"));
 
+		// Check if User Is In A Crew
+		if(user.roles.has(inACrewRole.id)) {
+			log(chalk.red("User is already in a crew!"));
+			return message.channel.send("You're already in a crew! Disband or Transfer your crew to someone else to make a new crew!");
+		}
+
 		// Capitalize First Letter In Each String in Args Array
 		for(var i = 1 ; i < args.length ; i++){
 		    args[i] = args[i].charAt(0).toUpperCase() + args[i].substr(1);
@@ -119,8 +125,6 @@ module.exports.run = async (bot, message, args, guild) => {
 			log(chalk.red(`${crewName} already exists!`));
 			message.channel.send(`${crewName} already exists! Try again with a different name!`);
 		}
-		
-
 		
 	} // End Create
 	
