@@ -1,4 +1,7 @@
 const Discord = require("discord.js");
+const logModule = require("../log.js");
+const log = logModule.log;
+const chalk = logModule.chalk;
 
 module.exports.run = async (bot, message, args, guild) => {
 	// Check if the member has the Administrator Permission
@@ -23,41 +26,41 @@ module.exports.run = async (bot, message, args, guild) => {
 
 		// Crew Captain
 		if(!guild.roles.find(role => role.name === 'Crew Captain')) {
-			console.log("Crew Captain Role Does Not Exist!");
+			log(chalk.yellow("Crew Captain Role Does Not Exist!"));
 			// Set up the Crew Captain Role
 			crewCaptainRole = await guild.createRole({
 				name: 'Crew Captain',
 				color: 'BLUE'
 			})
 				.then(value => {
-					console.log(`Created new role with name ${value.name}`);
+					log(chalk.green(`Created new role with name ${value.name}`));
 					makeCaptainRole = true;
 					return value;
 				})
 				.catch(console.error);
-			console.log(crewCaptainRole.id);
+			log(crewCaptainRole.id);
 		} else {
 			crewCaptainRole = guild.roles.find(role => role.name === 'Crew Captain');
-			console.log("Crew Captain Role Already Exists!");
+			log(chalk.red("Crew Captain Role Already Exists!"));
 		}
 
 		// In A Crew Role
 		if(!guild.roles.find(role => role.name === 'In A Crew')) {
-			console.log("In A Crew Role Does Not Exist!");
+			log(chalk.yellow("In A Crew Role Does Not Exist!"));
 			// Set up the Crew Captain Role
 			inACrewRole = await guild.createRole({
 				name: 'In A Crew'
 			})
 				.then(value => {
-					console.log(`Created new role with name ${value.name}`);
+					log(chalk.green(`Created new role with name ${value.name}`));
 					makeCrewRole = true;
 					return value;
 				})
 				.catch(console.error);
-			console.log(inACrewRole.id);
+			log(inACrewRole.id);
 		} else {
 			inACrewRole = guild.roles.find(role => role.name === 'In A Crew');
-			console.log("In A Crew Role Already Exists!");
+			log(chalk.red("In A Crew Role Already Exists!"));
 		}
 
 
@@ -66,7 +69,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		// --------------------
 		crewsCategory = guild.channels.find(channel => channel.name === 'crews');
 		if(!crewsCategory || crewsCategory.type !== 'category') {
-			console.log('Crews Category Does Not Exist!');
+			log(chalk.yellow('Crews Category Does Not Exist!'));
 			await guild.createChannel('crews', {
 				type: 'category',
 				permissionOverwrites: [
@@ -81,13 +84,13 @@ module.exports.run = async (bot, message, args, guild) => {
 				]
 			})
 			  .then(function() {
-			  	console.log("Crews Category Created!");
+			  	log(chalk.green("Crews Category Created!"));
 			  	makeCrewsCategory = true;
 			  })
 			  .catch(console.error);
 			  
 		} else if(crewsCategory.type === 'category') {
-			console.log("Crews Category Already Exists!");
+			log(chalk.red("Crews Category Already Exists!"));
 		}
 
 
@@ -115,7 +118,7 @@ module.exports.run = async (bot, message, args, guild) => {
 
 
 	} else {
-		console.log("No Permission To Run Setup!");
+		log("No Permission To Run Setup!");
 		message.channel.send("No Permission To Run Setup!");
 	}
 	
