@@ -8,7 +8,6 @@ const log = logModule.log;
 const chalk = logModule.chalk;
 // Handle SQLite Module
 const sql = sqliteModule.sql;
-const sqlError = sqliteModule.sqlError;
 const userCrewSearch = sqliteModule.userCrewSearch;
 const userCrewAdd = sqliteModule.userCrewAdd;
 const userRemove = sqliteModule.userRemove;
@@ -36,7 +35,7 @@ module.exports.run = async (bot, message, args, guild) => {
 	inACrewRole = guild.roles.find(role => role.name === 'In A Crew');
 	captainRole = guild.roles.find(role => role.name === 'Crew Captain');
 
-	if(!crewsCategory || !inACrewRole || !captainRole || sqlError == true) {
+	if(!crewsCategory || !inACrewRole || !captainRole) {
 		log(chalk.red("Setup Needs To Be Run First!"));
 		return message.channel.send("Setup Needs To Be Run First! Contact A Moderator or Admin!");
 	}
@@ -46,10 +45,11 @@ module.exports.run = async (bot, message, args, guild) => {
 	// Create Command
 	// --------------------
 	if(args[0] == 'create') {	
-		log("");
+		// Console Stuff
 		log(chalk.green("*******************"));
 		log(chalk.green("Crew Creation"))
 		log(chalk.green("*******************"));
+		log("");
 
 		// Check if User Is In A Crew
 		if(user.roles.has(inACrewRole.id)) {
@@ -136,7 +136,10 @@ module.exports.run = async (bot, message, args, guild) => {
 				id: `${message.guild.id}-${message.author.id}`,
 				user: message.author.id,
 				guild: message.guild.id,
-				crewName: crewName
+				crewName: crewName,
+				crewRoleID: crewRole.id,
+				inACrewRoleID: inACrewRole.id,
+				captainRoleID: captainRole.id
 			}
 			runSQL = userCrewAdd.run(crewSQLEntry);
 			if(runSQL) {
