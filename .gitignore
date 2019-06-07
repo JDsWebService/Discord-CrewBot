@@ -3,9 +3,9 @@
 # Edit at https://www.gitignore.io/?templates=node
 
 ### SQLite Database ###
-crews.sqlite
-crews.sqlite-shm
-crews.sqlite-wal
+database.sqlite
+database.sqlite-shm
+database.sqlite-wal
 
 ### Discord.js ###
 token-config.json
