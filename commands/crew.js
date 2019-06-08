@@ -400,9 +400,6 @@ module.exports.run = async (bot, message, args, guild) => {
 						})
 						.catch(console.error);
 
-			
-
-
 		} else {
 			log(chalk.red("Crew Does Not Exist!"));
 			return message.channel.send(`${crewName} is not a valid crew!`);
