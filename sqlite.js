@@ -11,7 +11,6 @@ const chalk = logModule.chalk;
 // --------------------
 let sql;
 
-
 // --------------------
 // Check if Database Exists
 // --------------------
@@ -132,13 +131,25 @@ function deleteCrew(guildID, crewRoleID) {
 	}
 }
 
+// Find Crew ID
+function findCrewID(guildID, crewName) {
+	crew = sql.prepare("SELECT * FROM 'crews' WHERE guildID = '" + guildID + "' AND crewName = '" + crewName + "';").get();
+
+	if(crew) {
+		return crew.id;
+	} else {
+		return false;
+	}
+}
+
 
 // Export Log Module
 module.exports = {
 	sql: sql,
-	userCrew: userCrewSearch,
+	userCrewSearch: userCrewSearch,
 	addNewCrew: addNewCrew,
 	addNewCrewMember: addNewCrewMember,
 	deleteCrewMember: deleteCrewMember,
 	deleteCrew: deleteCrew,
+	findCrewID: findCrewID,
 };

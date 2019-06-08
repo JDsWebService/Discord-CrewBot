@@ -1,16 +1,20 @@
-// Requires
+// Require the Discord Client
 const Discord = require("discord.js");
-const logModule = require("../log.js");
-const sqliteModule = require("../sqlite.js");
 
-// Handle Log Module
+// Import Log Module
+const logModule = require("../log.js");
 const log = logModule.log;
 const chalk = logModule.chalk;
-// Handle SQLite Module
+
+// Import SQLite Module
+const sqliteModule = require("../sqlite.js");
 const sql = sqliteModule.sql;
 const userCrewSearch = sqliteModule.userCrewSearch;
-const userCrewAdd = sqliteModule.userCrewAdd;
-const userRemove = sqliteModule.userRemove;
+const addNewCrew = sqliteModule.addNewCrew;
+const addNewCrewMember = sqliteModule.addNewCrewMember;
+const deleteCrewMember = sqliteModule.deleteCrewMember;
+const deleteCrew = sqliteModule.deleteCrew;
+const findCrewID = sqliteModule.findCrewID;
 
 module.exports.run = async (bot, message, args, guild) => {
 	// Debug Args
@@ -22,7 +26,8 @@ module.exports.run = async (bot, message, args, guild) => {
 	// Setup Variables
 	// --------------------
 	let crewName;
-	let makeCrewRole;
+	let sqlQuery;
+	let crewSQLID;
 	let crewsCategory;
 	let captainRole;
 	let inACrewRole;
@@ -82,7 +87,7 @@ module.exports.run = async (bot, message, args, guild) => {
 					return value;
 				})
 				.catch(console.error);
-			log(chalk.blue("Crew ID: " + crewRole.id));
+			log(chalk.blue("Crew Role ID: " + crewRole.id));
 
 			// Create Text Chat
 			await guild.createChannel(crewName, {
@@ -131,23 +136,23 @@ module.exports.run = async (bot, message, args, guild) => {
 					})
 					.catch(console.error);
 
-			// Add the User to the SQLite Table
-			let crewSQLEntry = {
-				id: `${message.guild.id}-${message.author.id}`,
-				user: message.author.id,
-				guild: message.guild.id,
-				crewName: crewName,
-				crewRoleID: crewRole.id,
-				inACrewRoleID: inACrewRole.id,
-				captainRoleID: captainRole.id
-			}
-			runSQL = userCrewAdd.run(crewSQLEntry);
-			if(runSQL) {
-				log(chalk.green("User & Crew Association added to SQLite"));
-				message.channel.send("Crew Created!");
+			// Add the Crew to the Database
+			sqlQuery = addNewCrew(guild.id, crewName, user.id, crewRole.id);
+			if(sqlQuery) {
+				log(chalk.green("Added Crew To Database!"));
 			} else {
-				log(chalk.red("Error when creating entry upon crew creation in SQLite"));
-				return message.channelsend("Error: SQLite Issue when Creating Crew!");
+				log(chalk.red("SQL Failed!"));
+			}
+
+			// Find the Crew ID from the Database
+			crewSQLID = findCrewID(guild.id, crewName);
+
+			// Add new Crew Member to the Database
+			sqlQuery = addNewCrewMember(crewSQLID, user.id, 1);
+			if(sqlQuery) {
+				log(chalk.green("Added Crew Member To Database!"));
+			} else {
+				log(chalk.red("SQL Failed!"));
 			}
 
 
@@ -180,7 +185,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		}
 
 		// Find the User's Crew Name from the SQLite Database
-		let userCrewName = userCrewSearch.get(message.author.id, message.guild.id).crewName;
+		let userCrewName = userCrewSearch(message.author.id).crewName;
 		log(chalk.blue("userCrewName: " + userCrewName));
 
 		// Find the Crew's Role to be used later on
@@ -206,6 +211,16 @@ module.exports.run = async (bot, message, args, guild) => {
 									.catch(console.error);
 						})
 						.catch(console.error);
+
+				// Find the CrewID
+				crewSQLID = findCrewID(guild.id, userCrewName);
+
+				// Delete Crew Member from Database
+				if(deleteCrewMember(crewSQLID, member.user.id)) {
+					log(chalk.green("Deleted Crew Member From Database!"));
+				} else {
+					log(chalk.red("SQL Failed!"));
+				}
 			} else {
 				// The user does not have the Captain Role, so just remove the other roles
 				log(chalk.blue("Removing other roles - Outside Captain Role"));
@@ -214,11 +229,17 @@ module.exports.run = async (bot, message, args, guild) => {
 							log(chalk.green(`Removed Crew Specific Role & In A Crew Role from user ${member.user.tag}!`));
 						})
 						.catch(console.error);
-			}
 
-			// Clean Up The SQLite Database
-			userRemove.run(member.user.id, guild.id);
-			log(chalk.green("Removed User From Database"));
+				// Find the CrewID
+				crewSQLID = findCrewID(guild.id, crewName);
+
+				// Delete Crew Member from Database
+				if(deleteCrewMember(crewSQLID, member.user.id)) {
+					log(chalk.green("Deleted Crew Member From Database!"));
+				} else {
+					log(chalk.red("SQL Failed!"));
+				}
+			}
 
 		}); // End Guild Members Loop
 
@@ -238,8 +259,15 @@ module.exports.run = async (bot, message, args, guild) => {
 				})
 				.catch(console.error);
 
+		// Handle Some SQL Database Things
+		if(deleteCrew(guild.id, userCrewRole.id)) {
+			log(chalk.green("Deleted Crew From Database!"));
+		} else {
+			log(chalk.red("SQL Failed!"));
+		}
+
 		// Remove the Crew Specific Role
-		guild.roles.find(role => role.name == userCrewName).delete()
+		userCrewRole.delete()
 				.then(function() {
 					log(chalk.green("Specific Crew Role Removed!"));
 				})
@@ -249,10 +277,12 @@ module.exports.run = async (bot, message, args, guild) => {
 		// Return Message to Channel
 		return message.channel.send("Crew has been disbanded!");
 
-
 	} // End Disband
 	
-	
+		
+
+
+
 } // End Crew Command
 
 module.exports.help = {

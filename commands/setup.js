@@ -1,9 +1,5 @@
 const Discord = require("discord.js");
 const logModule = require("../log.js");
-const sqliteModule = require("../sqlite.js");
-const log = logModule.log;
-const chalk = logModule.chalk;
-const sql = sqliteModule.sql;
 
 module.exports.run = async (bot, message, args, guild) => {
 	// Check if the member has the Administrator Permission
