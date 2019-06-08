@@ -168,16 +168,17 @@ module.exports.run = async (bot, message, args, guild) => {
 	// --------------------
 	if(args[0] == 'disband') {
 
-		log("");
 		log(chalk.green("*******************"));
 		log(chalk.green("Crew Disband"))
 		log(chalk.green("*******************"));
+		log("");
 
 		// Check if User is in a Crew
 		if(!user.roles.has(inACrewRole.id)) {
 			log(chalk.red("User is not in a crew!"));
 			return message.channel.send("You are not in a crew!");
 		}
+
 		// Check if User Has the Captain Role
 		if(!user.roles.has(captainRole.id)) {
 			log(chalk.red("User does not have the Captain Role!"));
@@ -279,7 +280,61 @@ module.exports.run = async (bot, message, args, guild) => {
 
 	} // End Disband
 	
-		
+
+	// --------------------	
+	// Join Command
+	// --------------------
+	if(args[0] == 'join') {
+
+		log(chalk.green("*******************"));
+		log(chalk.green("User Join A Crew"))
+		log(chalk.green("*******************"));
+		log("");
+
+		// Check if User is in a Crew
+		if(user.roles.has(inACrewRole.id)) {
+			log(chalk.red("Use is already in a crew!"));
+			return message.channel.send("You are already in a crew! Use the \`~crew leave\` command before joining a new crew!");
+		}
+
+		// Capitalize First Letter In Each String in Args Array
+		for(var i = 1 ; i < args.length ; i++){
+		    args[i] = args[i].charAt(0).toUpperCase() + args[i].substr(1);
+		}
+		// Define the crewName
+		crewName = args.join(" ").slice(5);
+		if(!crewName.includes("Crew")) {
+			crewName = crewName + " Crew";
+		}
+		log(chalk.blue('Crew Name: ' + crewName));
+
+		// check to see if crew name exists
+		if(guild.roles.find(role => role.name === crewName)) {
+
+			log(chalk.blue("Crew Exists!"));
+
+			// Find the Crew Text Channel
+			textChannel = guild.channels.find(channel => channel.name == crewName.replace(/\s+/g, '-').toLowerCase());
+			if(textChannel) {
+
+				log(chalk.green("Sending reply to user!"));
+				message.channel.send("Your request has been sent to the Crew! Please wait patiently for their reply!");
+
+				log(chalk.green("Sending Message to Crew Chat!"));
+				textChannel.send("<@" + user.user.id + "> is requesting to join your crew! Use the \`~crew add @<userName>\` command to add them to your crew!");
+			} else {
+				log(chalk.red("Can Not Find Crew Text Channel!"));
+				return message.channel.send("Can Not Find Text Channel for the Crew! Contact an Administrator!");
+			}
+
+
+		} else {
+			log(chalk.red("Crew Does Not Exist!"));
+			return message.channel.send(`${crewName} is not a valid crew!`);
+		}
+
+
+	} // End Join Command
 
 
 
