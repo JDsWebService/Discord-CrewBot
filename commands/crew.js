@@ -293,7 +293,7 @@ module.exports.run = async (bot, message, args, guild) => {
 
 		// Check if User is in a Crew
 		if(user.roles.has(inACrewRole.id)) {
-			log(chalk.red("Use is already in a crew!"));
+			log(chalk.red("User is already in a crew!"));
 			return message.channel.send("You are already in a crew! Use the \`~crew leave\` command before joining a new crew!");
 		}
 
@@ -336,6 +336,80 @@ module.exports.run = async (bot, message, args, guild) => {
 
 	} // End Join Command
 
+
+	// --------------------	
+	// Add Command
+	// --------------------
+	if(args[0] == 'add') {
+
+
+		log(chalk.green("*******************"));
+		log(chalk.green("Add User To Crew"))
+		log(chalk.green("*******************\n"));
+
+		// Find the User's Crew Name from the SQLite Database
+		let userCrew = userCrewSearch(message.author.id);
+		log(chalk.blue("userCrewName: " + userCrew.crewName));
+
+		// Check if User running command is even in a crew
+		if(!userCrew) {
+			log(chalk.red("User running command is not in a crew"));
+			return message.channel.send("You are not in a crew! Run the \`~crew create <crewName>\` command to create a new crew!");
+		}
+
+		// Check if User Has the Captain Role
+		if(!user.roles.has(captainRole.id)) {
+			log(chalk.red("User does not have the Captain Role!"));
+			return message.channel.send("You do not have permission to disband this Crew!");
+		}
+
+
+		// Get tagged user object
+		mentionedUser = message.mentions.users.first();
+		crewMemberToAdd = await guild.fetchMember(mentionedUser).catch(console.error);
+
+		// Check if Tagged User is in a Crew
+		if(crewMemberToAdd.roles.has(inACrewRole.id)) {
+			log(chalk.red("User is already in a crew!"));
+			return message.channel.send("User is already in a crew! Tell them to use the \`~crew leave\` command before joining a new crew!");
+		}
+
+		// Find the Crew's Role to be used later on
+		let userCrewRole = guild.roles.find(t => t.name == userCrew.crewName);
+
+		// Check to see if Crew Role Exists
+		if(userCrewRole) {
+
+			log(chalk.blue("Crew Role Exists!"));
+
+			// Add User to the Crew Role
+			crewMemberToAdd.addRole(userCrewRole)
+						.then(function() {
+							log(chalk.green("Added the Crew Role to the User!"));
+
+							// Add to SQL Table
+							addNewCrewMember(userCrew.id, crewMemberToAdd.user.id, 0);
+							log(chalk.green("Added Crew Member to Crew Members Table in SQLite!"));
+
+							// Find the Crew Text Channel
+							textChannel = guild.channels.find(channel => channel.name == userCrew.crewName.replace(/\s+/g, '-').toLowerCase());
+							textChannel.send("<@" + crewMemberToAdd.user.id + "> has joined your crew! Say hi!");
+							log(chalk.green("Sending Message to Crew Chat!"));
+
+							log(chalk.green("\nUser has been successfully added to the Crew!"));
+						})
+						.catch(console.error);
+
+			
+
+
+		} else {
+			log(chalk.red("Crew Does Not Exist!"));
+			return message.channel.send(`${crewName} is not a valid crew!`);
+		}
+
+
+	}
 
 
 } // End Crew Command
