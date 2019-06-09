@@ -406,7 +406,65 @@ module.exports.run = async (bot, message, args, guild) => {
 		}
 
 
-	}
+	} // End Add Command
+
+
+	// --------------------	
+	// Leave Command
+	// --------------------
+	if(args[0] == 'leave') {
+
+		log(chalk.green("*******************"));
+		log(chalk.green("Leave Crew"))
+		log(chalk.green("*******************"));
+		log("");
+
+		// Find the User's Crew Name from the SQLite Database
+		let userCrew = userCrewSearch(message.author.id);
+		log(chalk.blue("userCrewName: " + userCrew.crewName));
+
+		// Check if User running command is even in a crew
+		if(!userCrew) {
+			log(chalk.red("User running command is not in a crew"));
+			return message.channel.send("You are not in a crew! Run the \`~crew create <crewName>\` command to create a new crew!");
+		}
+
+		// Check if User Has the Captain Role
+		if(user.roles.has(captainRole.id)) {
+			log(chalk.red("User has the Crew Captain Role!"));
+			return message.channel.send("You are a Crew Captain! Use the \`~crew disband\` command to disband the crew, or transfer your crew first using the \`~crew transfer @<userName>\` command, then try and run this command again.");
+		}
+
+		user = message.member;
+
+		// Find the Crew's Role to be used later on
+		let userCrewRole = guild.roles.find(t => t.name == userCrew.crewName);
+
+		user.removeRole(userCrewRole)
+				.then(function() {
+
+					// Remove Crew From Crew Members Table
+					sqlQuery = deleteCrewMember(userCrew.id, user.user.id);
+					if(!sqlQuery) {
+						log(chalk.red("Could not remove crew member from crew-members table"));
+						return messsage.channel.send("Something went wrong when removing crew from SQLite Database");
+					} else {
+						log(chalk.green("Removed Crew Member from Crew Members Table in SQLite Database"));
+					}
+
+					// Find the Crew Text Channel
+					textChannel = guild.channels.find(channel => channel.name == userCrew.crewName.replace(/\s+/g, '-').toLowerCase());
+					// Send a Message to the Crew
+					textChannel.send("<@" + crewMemberToAdd.user.id + "> has left your crew!");
+					log(chalk.green("Sending Message to Crew Chat!"));
+
+					message.channel.send("You have left your crew!");
+
+					log(chalk.green("Crew Role has been removed from user"));
+				}).catch(console.error);
+
+	} // End Leave Command
+
 
 
 } // End Crew Command
