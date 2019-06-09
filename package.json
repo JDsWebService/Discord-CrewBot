@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/JDsWebService/Discord-CrewBot.git"
   },
+  "engines": {
+    "node": "10.x"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
