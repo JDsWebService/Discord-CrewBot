@@ -450,6 +450,8 @@ module.exports.run = async (bot, message, args, guild) => {
 		user.removeRole(userCrewRole)
 				.then(function() {
 
+					user.removeRole(inACrewRole.id).catch(console.error);
+					
 					// Remove Crew From Crew Members Table
 					sqlQuery = deleteCrewMember(userCrew.id, user.user.id);
 					if(!sqlQuery) {
@@ -462,7 +464,7 @@ module.exports.run = async (bot, message, args, guild) => {
 					// Find the Crew Text Channel
 					textChannel = guild.channels.find(channel => channel.name == userCrew.crewName.replace(/\s+/g, '-').toLowerCase());
 					// Send a Message to the Crew
-					textChannel.send("<@" + crewMemberToAdd.user.id + "> has left your crew!");
+					textChannel.send("<@" + user.user.id + "> has left your crew!");
 					log(chalk.green("Sending Message to Crew Chat!"));
 
 					message.channel.send("You have left your crew!");
@@ -618,7 +620,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		}
 
 		return message.channel.send("Crew Leadership has changed! Say hi to your new Captain <@" + crewMemberToTransfer.user.id +">!");
-		
+
 	} // End Transfer Command
 
 
