@@ -360,7 +360,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		// Check if User Has the Captain Role
 		if(!user.roles.has(captainRole.id)) {
 			log(chalk.red("User does not have the Captain Role!"));
-			return message.channel.send("You do not have permission to disband this Crew!");
+			return message.channel.send("You do not have permission to add a crew member to this Crew!");
 		}
 
 
@@ -387,6 +387,12 @@ module.exports.run = async (bot, message, args, guild) => {
 						.then(function() {
 							log(chalk.green("Added the Crew Role to the User!"));
 
+							// Add In A Crew Role
+							crewMemberToAdd.addRole(inACrewRole.id)
+										.then(function() {
+											log(chalk.green("Added In A Crew Role to User!"));
+										}).catch(console.error);
+
 							// Add to SQL Table
 							addNewCrewMember(userCrew.id, crewMemberToAdd.user.id, 0);
 							log(chalk.green("Added Crew Member to Crew Members Table in SQLite!"));
@@ -402,7 +408,7 @@ module.exports.run = async (bot, message, args, guild) => {
 
 		} else {
 			log(chalk.red("Crew Does Not Exist!"));
-			return message.channel.send(`${crewName} is not a valid crew!`);
+			return message.channel.send(`${crewName} is not a valid crew! -- Add Crew Member Command`);
 		}
 
 
@@ -464,6 +470,90 @@ module.exports.run = async (bot, message, args, guild) => {
 				}).catch(console.error);
 
 	} // End Leave Command
+
+
+
+	// --------------------	
+	// Kick Command
+	// --------------------
+	if(args[0] == 'kick') {
+
+
+		log(chalk.green("*******************"));
+		log(chalk.green("Kick Crew Member"))
+		log(chalk.green("*******************\n"));
+
+		// Find the User's Crew Name from the SQLite Database
+		let userCrew = userCrewSearch(message.author.id);
+		log(chalk.blue("userCrewName: " + userCrew.crewName));
+
+		// Check if User running command is even in a crew
+		if(!userCrew) {
+			log(chalk.red("User running command is not in a crew"));
+			return message.channel.send("You are not in a crew! Run the \`~crew create <crewName>\` command to create a new crew!");
+		}
+
+		// Check if User Has the Captain Role
+		if(!user.roles.has(captainRole.id)) {
+			log(chalk.red("User does not have the Captain Role!"));
+			return message.channel.send("You do not have permission to kick a crew member from this Crew!");
+		}
+
+		// Get tagged user object
+		mentionedUser = message.mentions.users.first();
+		crewMemberToRemove = await guild.fetchMember(mentionedUser).catch(console.error);
+
+		// Check if tagged user is self
+		if(crewMemberToRemove.id == message.author.id) {
+			log(chalk.yellow("User is trying to remove him/her self from crew"));
+			return message.channel.send("You can't remove yourself from the Crew using this command. Use \`~crew leave\` instead!");
+		}
+
+		// Find the Crew's Role to be used later on
+		let userCrewRole = guild.roles.find(t => t.name == userCrew.crewName);
+
+		// Check if Tagged User is in a This Crew
+		if(!crewMemberToRemove.roles.has(userCrewRole.id)) {
+			log(chalk.red("User isn't apart of this crew!"));
+			return message.channel.send("User is not even in this Crew!");
+		}
+
+		// Check to see if Crew Role Exists
+		if(userCrewRole) {
+
+			log(chalk.blue("Crew Role Exists!"));
+
+			// Remove User to the Crew Role
+			crewMemberToRemove.removeRole(userCrewRole)
+						.then(function() {
+							log(chalk.green("Removed the Crew Role to the User!"));
+
+							// Remove In A Crew Role
+							crewMemberToRemove.removeRole(inACrewRole.id)
+										.then(function() {
+											log(chalk.green("Removed In A Crew Role from User!"));
+										}).catch(console.error);
+
+							// Remove from SQL Table
+							deleteCrewMember(userCrew.id, crewMemberToRemove.user.id);
+							log(chalk.green("Removed Crew Member from Crew Members Table in SQLite!"));
+
+							// Find the Crew Text Channel
+							textChannel = guild.channels.find(channel => channel.name == userCrew.crewName.replace(/\s+/g, '-').toLowerCase());
+							textChannel.send(crewMemberToRemove.user.username + " has been removed from your crew!");
+							log(chalk.green("Sending Message to Crew Chat!"));
+
+							log(chalk.green("\nUser has been successfully removed from the Crew!"));
+						})
+						.catch(console.error);
+
+		} else {
+			log(chalk.red("Crew Does Not Exist!"));
+			return message.channel.send(`${crewName} is not a valid crew!`);
+		}
+
+
+	} // End Add Command
 
 
 
