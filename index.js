@@ -1,8 +1,11 @@
 // Load Dependancies
 const botconfig = require("./bot-config.json");
-const tokenconfig = require("./token-config.json");
 const Discord = require("discord.js");
 const fs = require("fs");
+// Import Log Module
+const logModule = require("./log.js");
+const log = logModule.log;
+const chalk = logModule.chalk;
 
 // Create the Bot Instance
 const bot = new Discord.Client({disableEveryone: true});
@@ -72,5 +75,12 @@ bot.on("message", async message => {
 	
 });
 
-// Log the bot in!
-bot.login(tokenconfig.token);
+// Handle Token & Login Bot
+if(process.env.token) {
+	log(chalk.blue("(index.js) - Bot logging in via Process Environment Token"));
+	bot.login(process.env.token);
+} else {
+	log(chalk.blue("(index.js) - Bot logging in via Token Config JSON"));
+	const tokenconfig = require("./token-config.json");
+	bot.login(tokenconfig.token);
+}

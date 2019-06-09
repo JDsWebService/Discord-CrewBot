@@ -1,5 +1,8 @@
 const Discord = require("discord.js");
+// Import Log Module
 const logModule = require("../log.js");
+const log = logModule.log;
+const chalk = logModule.chalk;
 
 module.exports.run = async (bot, message, args, guild) => {
 	// Check if the member has the Administrator Permission
