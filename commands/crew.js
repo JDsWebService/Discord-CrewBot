@@ -552,8 +552,10 @@ module.exports.run = async (bot, message, args, guild) => {
 			return message.channel.send(`${crewName} is not a valid crew!`);
 		}
 
+	} // End Kick Command
 
-	} // End Add Command
+
+	
 
 
 
