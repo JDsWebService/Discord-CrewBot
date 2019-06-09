@@ -15,6 +15,7 @@ const addNewCrewMember = sqliteModule.addNewCrewMember;
 const deleteCrewMember = sqliteModule.deleteCrewMember;
 const deleteCrew = sqliteModule.deleteCrew;
 const findCrewID = sqliteModule.findCrewID;
+const transferLeadership = sqliteModule.transferLeadership;
 
 module.exports.run = async (bot, message, args, guild) => {
 	// Debug Args
@@ -555,7 +556,70 @@ module.exports.run = async (bot, message, args, guild) => {
 	} // End Kick Command
 
 
-	
+	// --------------------	
+	// Transfer Command
+	// --------------------
+	if(args[0] == 'transfer') {
+
+		log(chalk.green("*******************"));
+		log(chalk.green("Crew Transfer"))
+		log(chalk.green("*******************\n"));
+
+		// Find the User's Crew Name from the SQLite Database
+		let userCrew = userCrewSearch(message.author.id);
+		log(chalk.blue("userCrewName: " + userCrew.crewName));
+
+		// Find the Crew's Role to be used later on
+		let userCrewRole = guild.roles.find(t => t.name == userCrew.crewName);
+
+		// Get tagged user object
+		mentionedUser = message.mentions.users.first();
+		crewMemberToTransfer = await guild.fetchMember(mentionedUser).catch(console.error);
+
+		// Check if User is in a Crew
+		if(!user.roles.has(inACrewRole.id)) {
+			log(chalk.red("User is not in a crew!"));
+			return message.channel.send("You are not in a crew!");
+		}
+
+		// Check if User Has the Captain Role
+		if(!user.roles.has(captainRole.id)) {
+			log(chalk.red("User does not have the Captain Role!"));
+			return message.channel.send("You do not have permission to transfer this Crew!");
+		}
+
+		// Check if tagged user is self
+		if(crewMemberToTransfer.id == message.author.id) {
+			log(chalk.yellow("User is trying to transfer to him/her self"));
+			return message.channel.send("You can't transfer the crew to yourself! You're already the Crew Captain!");
+		}
+
+		// Check if Tagged User is in a This Crew
+		if(!crewMemberToTransfer.roles.has(userCrewRole.id)) {
+			log(chalk.red("User isn't apart of this crew!"));
+			return message.channel.send("User is not in your Crew! Add the to the Crew using the \`~crew add @<userName>\` command!");
+		}
+
+		// Change the Roles
+		crewMemberToTransfer.addRole(captainRole.id)
+			.then(function() {
+				
+				log(chalk.green("Crew Captain Role Assigned to Tagged User"));
+
+				message.member.removeRole(captainRole.id)
+							.then(function() {
+								log(chalk.green("Crew Captain Role Removed From Message Author"));
+							}).catch(console.error);
+			}).catch(console.error);
+
+		// Handle SQLite Leadership Change
+		if(transferLeadership(message.member.id, crewMemberToTransfer.id)) {
+			log(chalk.green("SQLite Database has been updated!"));
+		}
+
+		return message.channel.send("Crew Leadership has changed! Say hi to your new Captain <@" + crewMemberToTransfer.user.id +">!");
+		
+	} // End Transfer Command
 
 
 

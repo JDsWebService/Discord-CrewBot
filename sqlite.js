@@ -55,7 +55,7 @@ if (!crewMembersTable['count(*)']) { // Table has not been setup
 	log(chalk.yellow("(sqlite.js) SQLite - CREW-MEMBERS Table Not Setup, Creating CREW-MEMBERS table now..."));
 
 	// Create the Table
-	sql.prepare("CREATE TABLE 'crew-members' ( ` id` INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, `crewID` INTEGER, `userID` INTEGER, `captain` INTEGER )").run();
+	sql.prepare("CREATE TABLE 'crew-members' ( `id` INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, `crewID` INTEGER, `userID` INTEGER, `captain` INTEGER )").run();
 
 	log(chalk.green("(sqlite.js) SQLite - CREW-MEMBERS table has been setup successfully"));
 	
@@ -142,6 +142,18 @@ function findCrewID(guildID, crewName) {
 	}
 }
 
+// Transfer Leadership
+function transferLeadership(captainID, userID) {
+	sqlQuery = sql.prepare("UPDATE 'crew-members' SET captain = 0 WHERE userID = " + captainID + ";").run();
+	sqlQuery2 = sql.prepare("UPDATE 'crew-members' SET captain = 1 WHERE userID = " + userID + ";").run();
+
+	if(sqlQuery && sqlQuery2) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 
 // Export Log Module
 module.exports = {
@@ -152,4 +164,5 @@ module.exports = {
 	deleteCrewMember: deleteCrewMember,
 	deleteCrew: deleteCrew,
 	findCrewID: findCrewID,
+	transferLeadership: transferLeadership,
 };
