@@ -399,6 +399,7 @@ module.exports.run = async (bot, message, args, guild) => {
 							log(chalk.green("\nUser has been successfully added to the Crew!"));
 						})
 						.catch(console.error);
+						
 
 		} else {
 			log(chalk.red("Crew Does Not Exist!"));
