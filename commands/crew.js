@@ -149,7 +149,7 @@ module.exports.run = async (bot, message, args, guild) => {
 			crewSQLID = findCrewID(guild.id, crewName);
 
 			// Add new Crew Member to the Database
-			sqlQuery = addNewCrewMember(crewSQLID, user.id, 1);
+			sqlQuery = addNewCrewMember(guild.id, crewSQLID, user.id, 1);
 			if(sqlQuery) {
 				log(chalk.green("Added Crew Member To Database!"));
 			} else {
@@ -187,7 +187,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		}
 
 		// Find the User's Crew Name from the SQLite Database
-		let userCrewName = userCrewSearch(message.author.id).crewName;
+		let userCrewName = userCrewSearch(guild.id, message.author.id).crewName;
 		log(chalk.blue("userCrewName: " + userCrewName));
 
 		// Find the Crew's Role to be used later on
@@ -349,7 +349,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		log(chalk.green("*******************\n"));
 
 		// Find the User's Crew Name from the SQLite Database
-		let userCrew = userCrewSearch(message.author.id);
+		let userCrew = userCrewSearch(guild.id, message.author.id);
 		log(chalk.blue("userCrewName: " + userCrew.crewName));
 
 		// Check if User running command is even in a crew
@@ -395,7 +395,7 @@ module.exports.run = async (bot, message, args, guild) => {
 										}).catch(console.error);
 
 							// Add to SQL Table
-							addNewCrewMember(userCrew.id, crewMemberToAdd.user.id, 0);
+							addNewCrewMember(guild.id, userCrew.id, crewMemberToAdd.user.id, 0);
 							log(chalk.green("Added Crew Member to Crew Members Table in SQLite!"));
 
 							// Find the Crew Text Channel
@@ -427,7 +427,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		log("");
 
 		// Find the User's Crew Name from the SQLite Database
-		let userCrew = userCrewSearch(message.author.id);
+		let userCrew = userCrewSearch(guild.id, message.author.id);
 		log(chalk.blue("userCrewName: " + userCrew.crewName));
 
 		// Check if User running command is even in a crew
@@ -487,7 +487,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		log(chalk.green("*******************\n"));
 
 		// Find the User's Crew Name from the SQLite Database
-		let userCrew = userCrewSearch(message.author.id);
+		let userCrew = userCrewSearch(guild.id, message.author.id);
 		log(chalk.blue("userCrewName: " + userCrew.crewName));
 
 		// Check if User running command is even in a crew
@@ -568,7 +568,7 @@ module.exports.run = async (bot, message, args, guild) => {
 		log(chalk.green("*******************\n"));
 
 		// Find the User's Crew Name from the SQLite Database
-		let userCrew = userCrewSearch(message.author.id);
+		let userCrew = userCrewSearch(guild.id, message.author.id);
 		log(chalk.blue("userCrewName: " + userCrew.crewName));
 
 		// Find the Crew's Role to be used later on
@@ -615,11 +615,14 @@ module.exports.run = async (bot, message, args, guild) => {
 			}).catch(console.error);
 
 		// Handle SQLite Leadership Change
-		if(transferLeadership(message.member.id, crewMemberToTransfer.id)) {
+		if(transferLeadership(guild.id, message.member.id, crewMemberToTransfer.id)) {
 			log(chalk.green("SQLite Database has been updated!"));
 		}
 
-		return message.channel.send("Crew Leadership has changed! Say hi to your new Captain <@" + crewMemberToTransfer.user.id +">!");
+		// Find the Crew Text Channel
+		textChannel = guild.channels.find(channel => channel.name == userCrew.crewName.replace(/\s+/g, '-').toLowerCase());
+		log(chalk.green("Sending Message to Crew Chat!"));
+		return textChannel.send("Crew Leadership has changed! Say hi to your new Captain <@" + crewMemberToTransfer.user.id +">!");
 
 	} // End Transfer Command
 

@@ -55,7 +55,7 @@ if (!crewMembersTable['count(*)']) { // Table has not been setup
 	log(chalk.yellow("(sqlite.js) SQLite - CREW-MEMBERS Table Not Setup, Creating CREW-MEMBERS table now..."));
 
 	// Create the Table
-	sql.prepare("CREATE TABLE 'crew-members' ( `id` INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, `crewID` INTEGER, `userID` INTEGER, `captain` INTEGER )").run();
+	sql.prepare("CREATE TABLE 'crew-members' ( `id` INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, `guildID` INTEGER, `crewID` INTEGER, `userID` INTEGER, `captain` INTEGER )").run();
 
 	log(chalk.green("(sqlite.js) SQLite - CREW-MEMBERS table has been setup successfully"));
 	
@@ -71,14 +71,14 @@ if (!crewMembersTable['count(*)']) { // Table has not been setup
 log(chalk.blue("(sqlite.js) SQLite - Loading pre-made SQL Queries..."));
 
 // Search for the User's Crew
-function userCrewSearch(userID) {
-	crewTable = sql.prepare("SELECT crewID FROM 'crew-members' WHERE userID = " + userID + ";").get();
+function userCrewSearch(guildID, userID) {
+	crewTable = sql.prepare("SELECT crewID FROM 'crew-members' WHERE userID = " + userID + " AND guildID = " + guildID + ";").get();
 
 	if(!crewTable) {
 		return false;
 	}
 
-	userCrew = sql.prepare("SELECT * FROM 'crews' WHERE id = " + crewTable.crewID + ";").get();
+	userCrew = sql.prepare("SELECT * FROM 'crews' WHERE id = " + crewTable.crewID + " AND guildID = " + guildID + ";").get();
 
 	return userCrew;
 }
@@ -98,9 +98,9 @@ function addNewCrew(guildID, crewName, crewCaptainUserID, crewRoleID) {
 }
 
 // Add New Crew Member
-function addNewCrewMember(crewID, userID, captain = 0) {
-	values =  crewID + ", " + userID + ", " + captain;
-	sqlQuery = sql.prepare("INSERT OR REPLACE INTO 'crew-members' (crewID, userID, captain) VALUES (" + values + ");").run();
+function addNewCrewMember(guildID, crewID, userID, captain = 0) {
+	values =  guildID + ", " + crewID + ", " + userID + ", " + captain;
+	sqlQuery = sql.prepare("INSERT OR REPLACE INTO 'crew-members' (guildID, crewID, userID, captain) VALUES (" + values + ");").run();
 
 	if(sqlQuery) {
 		return true;
@@ -143,9 +143,9 @@ function findCrewID(guildID, crewName) {
 }
 
 // Transfer Leadership
-function transferLeadership(captainID, userID) {
-	sqlQuery = sql.prepare("UPDATE 'crew-members' SET captain = 0 WHERE userID = " + captainID + ";").run();
-	sqlQuery2 = sql.prepare("UPDATE 'crew-members' SET captain = 1 WHERE userID = " + userID + ";").run();
+function transferLeadership(guildID, captainID, userID) {
+	sqlQuery = sql.prepare("UPDATE 'crew-members' SET captain = 0 WHERE userID = " + captainID + " AND guildID = " + guildID + ";").run();
+	sqlQuery2 = sql.prepare("UPDATE 'crew-members' SET captain = 1 WHERE userID = " + userID + " AND guildID = " + guildID + ";").run();
 
 	if(sqlQuery && sqlQuery2) {
 		return true;
