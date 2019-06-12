@@ -6,16 +6,6 @@ const logModule = require("../log.js");
 const log = logModule.log;
 const chalk = logModule.chalk;
 
-// Import SQLite Module
-const sqliteModule = require("../sqlite.js");
-const sql = sqliteModule.sql;
-const userCrew = sqliteModule.userCrew;
-const addNewCrew = sqliteModule.addNewCrew;
-const addNewCrewMember = sqliteModule.addNewCrewMember;
-const deleteCrewMember = sqliteModule.deleteCrewMember;
-const deleteCrew = sqliteModule.deleteCrew;
-const findCrewID = sqliteModule.findCrewID;
-
 module.exports.run = async (bot, message, args, guild) => {
 
 	// --------------------
