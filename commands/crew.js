@@ -411,7 +411,6 @@ module.exports.run = async (bot, message, args, guild) => {
 												}).catch(console.error);
 
 									// Add to SQL Table
-									addNewCrewMember(guild.id, userCrew.id, crewMemberToAdd.user.id, 0);
 									mysql.addNewCrewMember(guild.id, userCrew.id, crewMemberToAdd.user.id, 0, function(results) {
 										if(results) {
 											log(chalk.green("Added Crew Member to Crew Members Table in Database!"));
