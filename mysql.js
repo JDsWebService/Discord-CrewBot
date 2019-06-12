@@ -204,7 +204,6 @@ function deleteCrewMember(crewID, userID, callback) {
 			}
 
 			// Query Successful
-			log(results);
 			log(chalk.green("(mysql.js:deleteCrewMember) - Query Completed!"));
 			return callback(true);
 		});

@@ -207,7 +207,7 @@ module.exports.run = async (bot, message, args, guild) => {
 				if(member.roles.find(t => t.name == "Crew Captain")) {
 					log(chalk.blue("User Has Crew Captain Role"));
 					// Remove the Crew Captain Role
-					member.removeRoles([userCrewRole.id, inACrewRole.id, captainRole.id])
+					member.removeRoles([userCrewRole.id, inACrewRole.id])
 							.then(function() {
 								log(chalk.green("Removed Roles!"));
 								mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
