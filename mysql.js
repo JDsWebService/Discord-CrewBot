@@ -7,7 +7,7 @@ const log = logModule.log;
 const chalk = logModule.chalk;
 
 // Define Variables
-let env = 'prod';
+let env = 'dev';
 let connectionInfo;
 let tokenConfig;
 
