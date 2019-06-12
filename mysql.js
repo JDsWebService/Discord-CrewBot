@@ -1,6 +1,5 @@
 // Require Some Stuff
 const mysql = require('mysql');
-const tokenConfig = require('./token-config.json');
 
 // Import Log Module
 const logModule = require("./log.js");
@@ -20,6 +19,7 @@ if(env !== 'dev') {
 	// --------------------
 	// Localhost MySQL Information
 	// --------------------
+	const tokenConfig = require('./token-config.json');
 	connectionInfo = {
 		host: tokenConfig.mysql.development.host,
 		user: tokenConfig.mysql.development.user,
@@ -28,7 +28,6 @@ if(env !== 'dev') {
 	}
 }
 
-log(connectionInfo);
 // --------------------
 // Create MySQL Pool
 // --------------------
