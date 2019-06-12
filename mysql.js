@@ -7,8 +7,9 @@ const log = logModule.log;
 const chalk = logModule.chalk;
 
 // Define Variables
-let env = 'dev';
+let env = 'prod';
 let connectionInfo;
+let tokenConfig;
 
 if(env !== 'dev') {
 	// --------------------
@@ -19,7 +20,7 @@ if(env !== 'dev') {
 	// --------------------
 	// Localhost MySQL Information
 	// --------------------
-	let tokenConfig = require('./token-config.json');
+	tokenConfig = require('./token-config.json');
 	connectionInfo = {
 		host: tokenConfig.mysql.development.host,
 		user: tokenConfig.mysql.development.user,

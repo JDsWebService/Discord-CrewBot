@@ -67,9 +67,13 @@ module.exports.run = async (bot, message, args, guild) => {
 		for(var i = 1 ; i < args.length ; i++){
 		    args[i] = args[i].charAt(0).toUpperCase() + args[i].substr(1);
 		}
+
+		// Strip all Special Characters (Only Alpha Numeric Characters allowed)
+
 		// Define the crewName
-		crewName = args.join(" ").slice(7);
-		if(!crewName.includes("Crew")) {
+		tempCrewName = args.join(" ").slice(7);
+		crewName = tempCrewName.replace(/[^a-z0-9+]+/gi, '');
+		if(!crewName.includes("Crew") || !crewName.includes("crew")) {
 			crewName = crewName + " Crew";
 		}
 		log(chalk.blue('Crew Name: ' + crewName));
