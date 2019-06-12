@@ -73,10 +73,11 @@ module.exports.run = async (bot, message, args, guild) => {
 		// Define the crewName
 		tempCrewName = args.join(" ").slice(7);
 		crewName = tempCrewName.replace(/[^a-z0-9+]+/gi, '');
-		if(crewName == "") {
+		if(crewName == "" || crewName == " " || crewName == null) {
 			log(chalk.red("Crew Name Specified Is NULL"));
 			return message.channel.send("Please Name Your Crew! Try running the command again!"); 
 		}
+
 		if(!crewName.includes("Crew") || !crewName.includes("crew")) {
 			crewName = crewName + " Crew";
 		}
