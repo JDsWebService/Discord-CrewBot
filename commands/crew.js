@@ -660,7 +660,7 @@ module.exports.run = async (bot, message, args, guild) => {
 					}).catch(console.error);
 
 				// Handle SQLite Leadership Change
-				mysql.transferLeadership(guild.id, message.member.id, crewMemberToTransfer.id, function(result) {
+				mysql.transferLeadership(guild.id, message.member.id, crewMemberToTransfer.id, userCrewRole.id, function(result) {
 					if(result) {
 						log(chalk.green("MySQL database has been updated"));
 

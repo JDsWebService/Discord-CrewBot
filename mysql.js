@@ -282,7 +282,7 @@ function findCrewID(guildID, crewName, callback) {
 // --------------------
 // Transfer Leadership
 // --------------------
-function transferLeadership(guildID, captainID, userID, callback) {
+function transferLeadership(guildID, captainID, userID, crewRoleID, callback) {
 
 	// Prepare the SQL Statement
 	sql = "UPDATE `crew-members` SET captain = ? WHERE guildID = ? AND userID = ?;";
@@ -318,6 +318,18 @@ function transferLeadership(guildID, captainID, userID, callback) {
 			}
 			// Query Successful
 			log(chalk.green("(mysql.js:transferLeadership@user) - Query Completed!"));
+		});
+
+		sql = "UPDATE `crews` SET crewCaptainUserID = ? WHERE guildID = ? AND crewRoleID = ?;";
+
+		connection.query(sql, [userID, guildID, crewRoleID], function(err, results) {
+			if(err) {
+				log(chalk.red("(mysql.js:transferLeadership@crewUpdate) - Query Error"));
+				console.log(err);
+				return callback(false);
+			}
+			// Query Successful
+			log(chalk.green("(mysql.js:transferLeadership@crewUpdate) - Query Completed!"));
 		});
 
 
