@@ -209,13 +209,19 @@ module.exports.run = async (bot, message, args, guild) => {
 				// If the user doesn't have the Specific Crew Role - Skip it
 				if(!member.roles.find(t => t.name == userCrewName)) return;
 
-				member.removeRoles([captainRole.id, inACrewRole.id, userCrewRole.id]).then(function() {
-					mysql.deleteCrewMember(userCrew.id, member.user.id, function(result) {
-						if(result) {
-							log(chalk.green("User deleted from crew-members table"));
-						}
-					}); // End Delete Crew Member
+				member.removeRole(userCrewRole.id).then(function() {
+					member.removeRole(captainRole.id).then(function() {
+						member.removeRole(inACrewRole.id).then(function() {
+							mysql.deleteCrewMember(userCrew.id, member.user.id, function(result) {
+								if(result) {
+									log(chalk.green("User deleted from crew-members table"));
+								}
+							}); // End Delete Crew Member
+						}).catch(console.error);
+					}).catch(console.error);
 				}).catch(console.error);
+
+
 				
 
 			}); // End Guild Members Loop
