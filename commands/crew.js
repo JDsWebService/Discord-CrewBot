@@ -395,7 +395,6 @@ module.exports.run = async (bot, message, args, guild) => {
 												}).catch(console.error);
 
 									// Add to SQL Table
-									addNewCrewMember(guild.id, userCrew.id, crewMemberToAdd.user.id, 0);
 									mysql.addNewCrewMember(guild.id, userCrew.id, crewMemberToAdd.user.id, 0, function(results) {
 										if(results) {
 											log(chalk.green("Added Crew Member to Crew Members Table in Database!"));
@@ -644,7 +643,7 @@ module.exports.run = async (bot, message, args, guild) => {
 					}).catch(console.error);
 
 				// Handle SQLite Leadership Change
-				mysql.transferLeadership(guild.id, message.member.id, crewMemberToTransfer.id, function(result) {
+				mysql.transferLeadership(guild.id, message.member.id, crewMemberToTransfer.id, userCrewRole.id, function(result) {
 					if(result) {
 						log(chalk.green("MySQL database has been updated"));
 

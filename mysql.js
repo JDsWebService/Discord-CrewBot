@@ -182,8 +182,6 @@ function addNewCrewMember(guildID, crewID, userID, captain, callback) {
 // Delete Crew Member
 // --------------------
 function deleteCrewMember(crewID, userID, callback) {
-	log(crewID);
-	log(userID);
 	// Insert the crew into the crews table
 	sql = "DELETE FROM `crew-members` WHERE crewID = ? AND userID = ?;";
 	pool.getConnection(function(err, connection) {
@@ -284,7 +282,7 @@ function findCrewID(guildID, crewName, callback) {
 // --------------------
 // Transfer Leadership
 // --------------------
-function transferLeadership(guildID, captainID, userID, callback) {
+function transferLeadership(guildID, captainID, userID, crewRoleID, callback) {
 
 	// Prepare the SQL Statement
 	sql = "UPDATE `crew-members` SET captain = ? WHERE guildID = ? AND userID = ?;";
@@ -321,6 +319,15 @@ function transferLeadership(guildID, captainID, userID, callback) {
 			// Query Successful
 			log(chalk.green("(mysql.js:transferLeadership@user) - Query Completed!"));
 		});
+
+		// Prepare the SQL Statement
+		sql = "UPDATE `crews` SET crewCaptainUserID = ? WHERE guildID = ? AND  crewRoleID = ?;";
+		// Switch Roles in Crews Table
+		connection.query(sql, [userID, guildID, crewRoleID], function(results) {
+			if(results) {
+				log(chalk.green("(mysql.js:transferLeadership@crewsTable) - Ownership Transferred in the Crews table!"));
+			}
+		})
 
 
 		// Release the connection

@@ -8,17 +8,8 @@ const chalk = logModule.chalk;
 
 module.exports.run = async (bot, message, args, guild) => {
 
-	// --------------------
-	// Test SQL Pre-Made Queries
-	// --------------------
 
-	mysql.deleteCrewMember('13', '282997056438665217', function(r) {
-		if(r) {
-			log("Deleted");
-		}
-	})
-
-
+	// Return
 	return message.channel.send("pong");
 }
 
