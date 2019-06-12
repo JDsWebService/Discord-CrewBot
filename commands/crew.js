@@ -188,6 +188,11 @@ module.exports.run = async (bot, message, args, guild) => {
 
 		// Find the User's Crew Name from the SQLite Database
 		mysql.userCrewSearch(guild.id, message.author.id, function(result) {
+			if(!result) {
+				return message.channel.send("Something went wrong!");
+			} else {
+				log(result);
+			}
 			userCrewID = result.id;
 			userCrewName = result.crewName;
 			log(chalk.blue("userCrewName: " + userCrewName));
@@ -195,43 +200,19 @@ module.exports.run = async (bot, message, args, guild) => {
 			// Find the Crew's Role to be used later on
 			let userCrewRole = guild.roles.find(t => t.name == userCrewName);
 
-			let crewMembers = [];
 			// Loop through each member of the guild
 			guild.members.forEach(member => {
 				// If the user doesn't have the Specific Crew Role - Skip it
 				if(!member.roles.find(t => t.name == userCrewName)) return;
 
-				crewMembers.push(member.user.id);
-
-				// If the user has the Crew Captain Role
-				if(member.roles.find(t => t.name == "Crew Captain")) {
-					log(chalk.blue("User Has Crew Captain Role"));
-					// Remove the Crew Captain Role
-					member.removeRole(captainRole.id)
-							.then(function() {
-								log(chalk.green("Removed Roles!"));
-								mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
-									if(result) {
-										log(chalk.green("User deleted from crew-members table"));
-									}
-								}) // End Delete Crew Member SQL
-							})
-							.catch(console.error);
-				}
-
-				log(chalk.blue("Removing other roles - Outside Captain Role"));
-				member.removeRoles([userCrewRole.id, inACrewRole.id])
-				    	.then(function() {
-							log(chalk.green(`Removed Crew Specific Role & In A Crew Role from user ${member.user.tag}!`));
-							mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
-								if(result) {
-									log(chalk.green("User deleted from crew-members table"));
-								}
-							}) // End Delete Crew Member SQL
-						})
-						.catch(console.error);
-
-				
+				member.removeRole(captainRole.id).catch(console.error);
+				member.removeRole(inACrewRole.id).then(function() {
+					mysql.deleteCrewMember(userCrew.id, member.user.id, function(result) {
+						if(result) {
+							log(chalk.green("User deleted from crew-members table"));
+						}
+					}); // End Delete Crew Member
+				}).catch(console.error);
 
 			}); // End Guild Members Loop
 

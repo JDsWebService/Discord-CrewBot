@@ -7,7 +7,7 @@ const log = logModule.log;
 const chalk = logModule.chalk;
 
 // Define Variables
-let env = 'production';
+let env = 'dev';
 let connectionInfo;
 
 if(env !== 'dev') {
@@ -182,12 +182,13 @@ function addNewCrewMember(guildID, crewID, userID, captain, callback) {
 // Delete Crew Member
 // --------------------
 function deleteCrewMember(crewID, userID, callback) {
+	log(crewID, userID);
 	// Insert the crew into the crews table
 	sql = "DELETE FROM `crew-members` WHERE crewID = ? AND userID = ?;";
 	pool.getConnection(function(err, connection) {
 		// If MySQL Connection Error
 		if(err) {
-			log(chalk.red("(mysql.js:deleteCrewMember) - Connection Error"));
+			log(chalk.red("(mysql.js:deleteCrew) - Connection Error"));
 			console.log(err);
 			return callback(false);
 		}
@@ -198,13 +199,13 @@ function deleteCrewMember(crewID, userID, callback) {
 			connection.release();
 			// If Query Error
 			if(err) {
-				log(chalk.red("(mysql.js:deleteCrewMember) - Query Error"));
+				log(chalk.red("(mysql.js:deleteCrew) - Query Error"));
 				console.log(err);
 				return callback(false);
 			}
 
 			// Query Successful
-			log(chalk.green("(mysql.js:deleteCrewMember) - Query Completed!"));
+			log(chalk.green("(mysql.js:deleteCrew) - Query Completed!"));
 			return callback(true);
 		});
 	});
