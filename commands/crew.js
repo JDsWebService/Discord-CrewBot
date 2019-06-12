@@ -476,7 +476,6 @@ module.exports.run = async (bot, message, args, guild) => {
 							user.removeRole(inACrewRole.id).catch(console.error);
 							
 							// Remove Crew From Crew Members Table
-							sqlQuery = deleteCrewMember(userCrew.id, user.user.id);
 							mysql.deleteCrewMember(userCrew.id, user.user.id, function(result) {
 								if(result) {
 									// Find the Crew Text Channel
