@@ -15,7 +15,7 @@ if(env !== 'dev') {
 	// --------------------
 	// Heroku MySQL Connection
 	// --------------------
-	connectionInfo = tokenConfig.mysql.heroku;
+	connectionInfo = process.env.CLEARDB_DATABASE_URL;
 } else {
 	// --------------------
 	// Localhost MySQL Information
