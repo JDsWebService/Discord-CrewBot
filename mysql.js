@@ -8,7 +8,7 @@ const log = logModule.log;
 const chalk = logModule.chalk;
 
 // Define Variables
-let env = 'dev';
+let env = 'production';
 let connectionInfo;
 
 if(env !== 'dev') {
