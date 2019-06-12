@@ -188,45 +188,35 @@ module.exports.run = async (bot, message, args, guild) => {
 
 		// Find the User's Crew Name from the SQLite Database
 		mysql.userCrewSearch(guild.id, message.author.id, function(result) {
+			userCrewID = result.id;
 			userCrewName = result.crewName;
 			log(chalk.blue("userCrewName: " + userCrewName));
 
 			// Find the Crew's Role to be used later on
 			let userCrewRole = guild.roles.find(t => t.name == userCrewName);
 
+			let crewMembers = [];
 			// Loop through each member of the guild
 			guild.members.forEach(member => {
 				// If the user doesn't have the Specific Crew Role - Skip it
 				if(!member.roles.find(t => t.name == userCrewName)) return;
+
+				crewMembers.push(member.user.id);
+
 				// If the user has the Crew Captain Role
 				if(member.roles.find(t => t.name == "Crew Captain")) {
 					log(chalk.blue("User Has Crew Captain Role"));
 					// Remove the Crew Captain Role
-					member.removeRole(captainRole.id)
+					member.removeRoles([userCrewRole.id, inACrewRole.id, captainRole.id])
 							.then(function() {
-								log(chalk.green("Removed Crew Captain role from: " + member.user.tag));
-								// Then remove the other roles
-								log(chalk.blue("Removing other roles - Inside Captain Role"));
-								member.removeRoles([userCrewRole.id, inACrewRole.id])
-								    	.then(function() {
-											log(chalk.green(`Removed Crew Specific Role & In A Crew Role from user ${member.user.tag}!`));
-										})
-										.catch(console.error);
+								log(chalk.green("Removed Roles!"));
+								mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
+									if(result) {
+										log(chalk.green("User deleted from crew-members table"));
+									}
+								}) // End Delete Crew Member SQL
 							})
 							.catch(console.error);
-
-					// Find the CrewID
-					mysql.findCrewID(guild.id, userCrewName, function(result) {
-						if(result) {
-							log(chalk.green("(crew.js:disband) - Found the Crew ID in Database"));
-							// Delete Crew Member From Database
-							mysql.deleteCrewMember(result.id, member.user.id, function(result) {
-								if(result) {
-									log(chalk.green("(crew.js:disband@captainRemove) - Removed Captain from Crew Members Table"));
-								}
-							}); // End Delete Crew Member
-						}
-					}); // End Find Crew ID
 
 				} else {
 					// The user does not have the Captain Role, so just remove the other roles
@@ -234,22 +224,16 @@ module.exports.run = async (bot, message, args, guild) => {
 					member.removeRoles([userCrewRole.id, inACrewRole.id])
 					    	.then(function() {
 								log(chalk.green(`Removed Crew Specific Role & In A Crew Role from user ${member.user.tag}!`));
+								mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
+									if(result) {
+										log(chalk.green("User deleted from crew-members table"));
+									}
+								}) // End Delete Crew Member SQL
 							})
 							.catch(console.error);
-
-					// Find the CrewID
-					mysql.findCrewID(guild.id, userCrewName, function(result) {
-						if(result) {
-							log(chalk.green("(crew.js:disband) - Found the Crew ID in Database"));
-							// Delete Crew Member From Database
-							mysql.deleteCrewMember(result[0].id, member.user.id, function(result) {
-								if(result) {
-									log(chalk.green("(crew.js:disband@userRemove) - Removed Crew member from Crew Members Table"));
-								}
-							}); // End Delete Crew Member
-						}
-					}); // End Find Crew ID
 				}
+
+				
 
 			}); // End Guild Members Loop
 
@@ -273,7 +257,7 @@ module.exports.run = async (bot, message, args, guild) => {
 				if(result) {
 					log(chalk.green("(crew.js:disband@deleteCrew) - Deleted Crew from Database"));
 				}
-			})
+			});
 
 			// Remove the Crew Specific Role
 			userCrewRole.delete()
@@ -411,6 +395,7 @@ module.exports.run = async (bot, message, args, guild) => {
 												}).catch(console.error);
 
 									// Add to SQL Table
+									addNewCrewMember(guild.id, userCrew.id, crewMemberToAdd.user.id, 0);
 									mysql.addNewCrewMember(guild.id, userCrew.id, crewMemberToAdd.user.id, 0, function(results) {
 										if(results) {
 											log(chalk.green("Added Crew Member to Crew Members Table in Database!"));
@@ -659,7 +644,7 @@ module.exports.run = async (bot, message, args, guild) => {
 					}).catch(console.error);
 
 				// Handle SQLite Leadership Change
-				mysql.transferLeadership(guild.id, message.member.id, crewMemberToTransfer.id, userCrewRole.id, function(result) {
+				mysql.transferLeadership(guild.id, message.member.id, crewMemberToTransfer.id, function(result) {
 					if(result) {
 						log(chalk.green("MySQL database has been updated"));
 

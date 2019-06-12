@@ -1,5 +1,6 @@
 // Require Some Stuff
 const mysql = require('mysql');
+const tokenConfig = require('./token-config.json');
 
 // Import Log Module
 const logModule = require("./log.js");
@@ -7,19 +8,18 @@ const log = logModule.log;
 const chalk = logModule.chalk;
 
 // Define Variables
-let env = 'prod';
+let env = 'dev';
 let connectionInfo;
 
 if(env !== 'dev') {
 	// --------------------
 	// Heroku MySQL Connection
 	// --------------------
-	connectionInfo = process.env.CLEARDB_DATABASE_URL;
+	connectionInfo = tokenConfig.mysql.heroku;
 } else {
 	// --------------------
 	// Localhost MySQL Information
 	// --------------------
-	const tokenConfig = require('./token-config.json');
 	connectionInfo = {
 		host: tokenConfig.mysql.development.host,
 		user: tokenConfig.mysql.development.user,
@@ -28,6 +28,7 @@ if(env !== 'dev') {
 	}
 }
 
+log(connectionInfo);
 // --------------------
 // Create MySQL Pool
 // --------------------
@@ -181,7 +182,8 @@ function addNewCrewMember(guildID, crewID, userID, captain, callback) {
 // Delete Crew Member
 // --------------------
 function deleteCrewMember(crewID, userID, callback) {
-
+	log(crewID);
+	log(userID);
 	// Insert the crew into the crews table
 	sql = "DELETE FROM `crew-members` WHERE crewID = ? AND userID = ?;";
 	pool.getConnection(function(err, connection) {
@@ -204,6 +206,7 @@ function deleteCrewMember(crewID, userID, callback) {
 			}
 
 			// Query Successful
+			log(results);
 			log(chalk.green("(mysql.js:deleteCrewMember) - Query Completed!"));
 			return callback(true);
 		});
@@ -249,7 +252,6 @@ function deleteCrew(guildID, crewRoleID, callback) {
 // Find Crew ID
 // --------------------
 function findCrewID(guildID, crewName, callback) {
-
 	// Insert the crew into the crews table
 	sql = "SELECT id FROM crews WHERE guildID = ? AND crewName = ?;";
 	pool.getConnection(function(err, connection) {
@@ -282,7 +284,7 @@ function findCrewID(guildID, crewName, callback) {
 // --------------------
 // Transfer Leadership
 // --------------------
-function transferLeadership(guildID, captainID, userID, crewRoleID, callback) {
+function transferLeadership(guildID, captainID, userID, callback) {
 
 	// Prepare the SQL Statement
 	sql = "UPDATE `crew-members` SET captain = ? WHERE guildID = ? AND userID = ?;";
@@ -318,18 +320,6 @@ function transferLeadership(guildID, captainID, userID, crewRoleID, callback) {
 			}
 			// Query Successful
 			log(chalk.green("(mysql.js:transferLeadership@user) - Query Completed!"));
-		});
-
-		sql = "UPDATE `crews` SET crewCaptainUserID = ? WHERE guildID = ? AND crewRoleID = ?;";
-
-		connection.query(sql, [userID, guildID, crewRoleID], function(err, results) {
-			if(err) {
-				log(chalk.red("(mysql.js:transferLeadership@crewUpdate) - Query Error"));
-				console.log(err);
-				return callback(false);
-			}
-			// Query Successful
-			log(chalk.green("(mysql.js:transferLeadership@crewUpdate) - Query Completed!"));
 		});
 
 

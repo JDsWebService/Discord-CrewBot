@@ -12,31 +12,11 @@ module.exports.run = async (bot, message, args, guild) => {
 	// Test SQL Pre-Made Queries
 	// --------------------
 
-	// findCrewID(12, "Fine Crew");
-
-	// if(addNewCrew(12, "Fine Crew", 34, 56)) {
-	// 	log(chalk.green("Added Crew To Database!"));
-	// } else {
-	// 	log(chalk.red("SQL Failed!"));
-	// }
-
-	// if(addNewCrewMember(12, 3234234, 0)) {
-	// 	log(chalk.green("Added Crew Member To Database!"));
-	// } else {
-	// 	log(chalk.red("SQL Failed!"));
-	// }
-
-	// if(deleteCrewMember(353, 3234234)) {
-	// 	log(chalk.green("Deleted Crew Member From Database!"));
-	// } else {
-	// 	log(chalk.red("SQL Failed!"));
-	// }
-
-	// if(deleteCrew(12, 56)) {
-	// 	log(chalk.green("Deleted Crew From Database!"));
-	// } else {
-	// 	log(chalk.red("SQL Failed!"));
-	// }
+	mysql.deleteCrewMember('13', '282997056438665217', function(r) {
+		if(r) {
+			log("Deleted");
+		}
+	})
 
 
 	return message.channel.send("pong");
