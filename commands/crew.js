@@ -207,7 +207,7 @@ module.exports.run = async (bot, message, args, guild) => {
 				if(member.roles.find(t => t.name == "Crew Captain")) {
 					log(chalk.blue("User Has Crew Captain Role"));
 					// Remove the Crew Captain Role
-					member.removeRoles([userCrewRole.id, inACrewRole.id])
+					member.removeRole(captainRole.id)
 							.then(function() {
 								log(chalk.green("Removed Roles!"));
 								mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
@@ -217,21 +217,19 @@ module.exports.run = async (bot, message, args, guild) => {
 								}) // End Delete Crew Member SQL
 							})
 							.catch(console.error);
-
-				} else {
-					// The user does not have the Captain Role, so just remove the other roles
-					log(chalk.blue("Removing other roles - Outside Captain Role"));
-					member.removeRoles([userCrewRole.id, inACrewRole.id])
-					    	.then(function() {
-								log(chalk.green(`Removed Crew Specific Role & In A Crew Role from user ${member.user.tag}!`));
-								mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
-									if(result) {
-										log(chalk.green("User deleted from crew-members table"));
-									}
-								}) // End Delete Crew Member SQL
-							})
-							.catch(console.error);
 				}
+
+				log(chalk.blue("Removing other roles - Outside Captain Role"));
+				member.removeRoles([userCrewRole.id, inACrewRole.id])
+				    	.then(function() {
+							log(chalk.green(`Removed Crew Specific Role & In A Crew Role from user ${member.user.tag}!`));
+							mysql.deleteCrewMember(String(userCrewID), member.user.id, function(result) {
+								if(result) {
+									log(chalk.green("User deleted from crew-members table"));
+								}
+							}) // End Delete Crew Member SQL
+						})
+						.catch(console.error);
 
 				
 
